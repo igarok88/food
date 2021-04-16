@@ -171,12 +171,12 @@ window.addEventListener('DOMContentLoaded', () => {
 	}
 
 
-	window.addEventListener('scroll', showModalByScroll);
+	// window.addEventListener('scroll', showModalByScroll);
 
 	//Card template --------------------------------------------
 
 	class Card {
-		constructor(src, alt, title, descr, price, parent) {
+		constructor(src, alt, title, descr, price, parent, ...classes) {
 			this.src = src;
 			this.alt = alt;
 			this.title = title;
@@ -184,6 +184,7 @@ window.addEventListener('DOMContentLoaded', () => {
 			this.price = price;
 			this.tansfer = 27;
 			this.parent = document.querySelector(parent);
+			this.classes = classes;
 			this.changeToUAH();
 		}
 
@@ -193,7 +194,14 @@ window.addEventListener('DOMContentLoaded', () => {
 
 		render() {
 			const element = document.createElement('div');
-			element.classList.add("menu__item");
+
+			if (this.classes.length === 0) {
+				this.classes = 'menu__item';
+				element.classList.add(this.classes);
+			} else {
+				this.classes.forEach(className => element.classList.add(className));
+			}
+
 			element.innerHTML =
 				`
 					<img src=${this.src} alt=${this.alt}>
@@ -224,7 +232,8 @@ window.addEventListener('DOMContentLoaded', () => {
 		'Меню "Постное"',
 		'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие	продуктов животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное	количество белков за счет тофу и импортных вегетарианских стейков.',
 		11,
-		'.menu .container'
+		'.menu .container',
+		'menu__item'
 	).render();
 
 	new Card(
@@ -233,7 +242,8 @@ window.addEventListener('DOMContentLoaded', () => {
 		'Меню “Премиум”',
 		'В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода	в ресторан!',
 		13,
-		'.menu .container'
+		'.menu .container',
+		'menu__item'
 	).render();
 
 
