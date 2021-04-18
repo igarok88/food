@@ -45,7 +45,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 	// Timer ------------------------------------------------
 
-	const deadLine = '2021-04-17'; // устанавливаем дату окончания отсчета
+	const deadLine = '2021-04-30'; // устанавливаем дату окончания отсчета
 
 	function getTimeRemaining(endtime) {
 		//получаем разницу от текущей даты и окончательной даты, в милисекундах
@@ -246,6 +246,71 @@ window.addEventListener('DOMContentLoaded', () => {
 		'menu__item'
 	).render();
 
+	//Forms--------------------------------
 
+	//получаем все формы
+	const forms = document.querySelectorAll('form');
+
+	//создаем объект с разными типами сообщений
+	const message = {
+		loading: "Загрузка",
+		success: "Спасибо! Скоро с вами свяжемся",
+		failure: "Что-то пошло не так..."
+	};
+
+	//для каждой формы запускаем функцию postData
+	forms.forEach(item => {
+		postData(item);
+	});
+
+	function postData(form) {
+		form.addEventListener('submit', (e) => {//событие когда пользователь нажал button в форме
+			e.preventDefault();//сбрасываем стандартное поведение браузера
+
+			//Создаем элемент с информационным сообщением и добавляем в конец формы
+			const statusMessage = document.createElement('div');
+			statusMessage.classList.add('status');
+			statusMessage.textContent = message.loading;
+			form.append(statusMessage);
+
+			//создаем объект который дает возможность делать запросы к бэкэнду без перезагрузки страницы
+			const request = new XMLHttpRequest();
+
+			//настраиваем параметры запроса
+			request.open('POST', 'server.php');
+			//указываем информацию в шапку запроса (что иммено приходит)
+			request.setRequestHeader('Content-type', 'application/json');
+
+			//Создаем объект конструктор, во внутрь помещаем форму из которой нужно собрать данные
+			const formData = new FormData(form);//что-бы формы правильно работали, в верстке в input(и др эл. формы) должен быть атрибут name, иначе FormData() не сможет найти значения и правильно сформировать обьект
+
+			//создаем пустой объект и промещаем в него объект formData который переберем через forEach ключ-значение
+			const object = {};
+
+			formData.forEach(function (value, key) {
+				object[key] = value;
+			});
+
+			//преобразуем объект в строку
+			const json = JSON.stringify(object);
+
+			//отправляем данные
+			request.send(json);
+
+			request.addEventListener('load', () => {// срабатывает событие load если запрос завершен (не обязательно успешно)
+				if (request.status === 200) {//проверяем что запрос успешен
+					console.log(request.response);
+					statusMessage.textContent = message.success;//инфо-сообщение о успешной операции
+					form.reset();//сбрасываем форму
+					setTimeout(() => {
+						statusMessage.remove();//удаляем инфо-сообщение через 2 секунды
+					}, 2000);
+				} else {
+					statusMessage.textContent = message.failure;
+				}
+			});
+		});
+
+	}
 
 });
