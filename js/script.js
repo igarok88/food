@@ -111,7 +111,7 @@ window.addEventListener('DOMContentLoaded', () => {
 	//получаем родительский элемент модального окна
 	const modal = document.querySelector('.modal');
 	//получаем кнопку закрыть в модальном окне
-	const modalCloseBtn = document.querySelector('[data-close]');
+	// const modalCloseBtn = document.querySelector('[data-close]');
 
 
 	function modalOpen() {
@@ -134,12 +134,12 @@ window.addEventListener('DOMContentLoaded', () => {
 	}
 
 
-	modalCloseBtn.addEventListener('click', modalClose);
+	// modalCloseBtn.addEventListener('click', modalClose);
 
 
 	//проверяем что кликнули по подложке модального окна, и вызываем функцию
 	modal.addEventListener('click', (event) => {
-		if (event.target == modal) {
+		if (event.target == modal || event.target.getAttribute('data-close') == '') {
 			modalClose();
 		}
 	});
@@ -154,7 +154,7 @@ window.addEventListener('DOMContentLoaded', () => {
 	});
 
 
-	// let modalTimer = setTimeout(modalOpen, 3000);
+	let modalTimer = setTimeout(modalOpen, 50000);
 
 
 	function showModalByScroll() {
@@ -253,7 +253,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 	//создаем объект с разными типами сообщений
 	const message = {
-		loading: "Загрузка",
+		loading: "img/form/spinner.svg",
 		success: "Спасибо! Скоро с вами свяжемся",
 		failure: "Что-то пошло не так..."
 	};
@@ -268,49 +268,77 @@ window.addEventListener('DOMContentLoaded', () => {
 			e.preventDefault();//сбрасываем стандартное поведение браузера
 
 			//Создаем элемент с информационным сообщением и добавляем в конец формы
-			const statusMessage = document.createElement('div');
-			statusMessage.classList.add('status');
-			statusMessage.textContent = message.loading;
-			form.append(statusMessage);
+			const statusMessage = document.createElement('img');
+			statusMessage.src = message.loading;
+			statusMessage.style.cssText =
+				`
+					display: block;
+					margin: 0 auto;
+				`;
 
-			//создаем объект который дает возможность делать запросы к бэкэнду без перезагрузки страницы
-			const request = new XMLHttpRequest();
-
-			//настраиваем параметры запроса
-			request.open('POST', 'server.php');
-			//указываем информацию в шапку запроса (что иммено приходит)
-			request.setRequestHeader('Content-type', 'application/json');
+			form.insertAdjacentElement('afterend', statusMessage);
 
 			//Создаем объект конструктор, во внутрь помещаем форму из которой нужно собрать данные
 			const formData = new FormData(form);//что-бы формы правильно работали, в верстке в input(и др эл. формы) должен быть атрибут name, иначе FormData() не сможет найти значения и правильно сформировать обьект
 
-			//создаем пустой объект и промещаем в него объект formData который переберем через forEach ключ-значение
+			// создаем пустой объект и промещаем в него объект formData который переберем через forEach ключ - значение
 			const object = {};
 
 			formData.forEach(function (value, key) {
 				object[key] = value;
 			});
 
-			//преобразуем объект в строку
-			const json = JSON.stringify(object);
-
-			//отправляем данные
-			request.send(json);
-
-			request.addEventListener('load', () => {// срабатывает событие load если запрос завершен (не обязательно успешно)
-				if (request.status === 200) {//проверяем что запрос успешен
-					console.log(request.response);
-					statusMessage.textContent = message.success;//инфо-сообщение о успешной операции
+			fetch('server.php', {
+				method: 'POST',
+				headers: {
+					'Content-type': 'application/json'
+				},
+				body: JSON.stringify(object)
+			})
+				.then(data => data.text())
+				.then(data => {
+					console.log(data);
+					showThanksModal(message.success);//инфо-сообщение о успешной операции
+					statusMessage.remove();//удаляем инфо-сообщение через 2 секунды
+				})
+				.catch(() => {
+					showThanksModal(message.failure);
+				})
+				.finally(() => {
 					form.reset();//сбрасываем форму
-					setTimeout(() => {
-						statusMessage.remove();//удаляем инфо-сообщение через 2 секунды
-					}, 2000);
-				} else {
-					statusMessage.textContent = message.failure;
-				}
-			});
+				});
 		});
-
 	}
+
+
+	function showThanksModal(message) {
+		const prevModalDialog = document.querySelector('.modal__dialog');
+
+		prevModalDialog.classList.add('hide');
+
+		modalOpen();
+
+		const thanksModal = document.createElement('div');
+		thanksModal.classList.add('modal__dialog');
+		thanksModal.innerHTML =
+			`
+				<div class="modal__content">
+					<div class="modal__close" data-close>&times;</div>
+					<div class="modal__title">${message}</div>
+				</div>
+			`;
+
+		document.querySelector('.modal').append(thanksModal);
+		setTimeout(() => {
+			thanksModal.remove();
+			prevModalDialog.classList.add('show');
+			prevModalDialog.classList.remove('hide');
+			modalClose();
+		}, 4000);
+	}
+
+	fetch('http://localhost:3000/menu')
+		.then(data => data.json()
+			.then(res => console.log(res)));
 
 });
