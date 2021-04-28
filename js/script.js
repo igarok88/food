@@ -41,7 +41,6 @@ window.addEventListener('DOMContentLoaded', () => {
 			current.textContent = `0${slideIndex}`;
 		} else {
 			current.textContent = slideIndex;
-
 		}
 	}
 
