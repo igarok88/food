@@ -1,3 +1,5 @@
+import { getResource } from '../services/services';
+
 function cards() {
 
 	//Card template --------------------------------------------
@@ -43,11 +45,7 @@ function cards() {
 			this.parent.append(element);
 		}
 	}
-	const getResource = async (url) => {
-		const res = await fetch(url);
 
-		return await res.json();
-	};
 
 	// getResource('http://localhost:3000/menu')
 	// 	.then(data => {
@@ -91,4 +89,4 @@ function cards() {
 
 }
 
-module.exports = cards;
+export default cards;

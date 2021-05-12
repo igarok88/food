@@ -1,12 +1,9 @@
-function timer() {
+function timer(id, deadLine) {
 
 	// Timer ------------------------------------------------
 
 
 	let now = new Date();
-
-
-	const deadLine = '2021-04-30'; // устанавливаем дату окончания отсчета
 
 	function getTimeRemaining(endtime) {
 		//получаем разницу от текущей даты и окончательной даты, в милисекундах
@@ -62,8 +59,8 @@ function timer() {
 			}
 		}
 	}
-	setClock('.timer', deadLine);
+	setClock(id, deadLine);
 
 }
 
-module.exports = timer;
+export default timer;

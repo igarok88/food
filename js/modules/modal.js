@@ -1,33 +1,40 @@
-function modal() {
+function modalOpen(modalSelector, modalTimerId) {
+	const modal = document.querySelector(modalSelector);
+	modal.classList.remove('hide');
+	modal.classList.add('show');
+	document.body.style.overflow = 'hidden';
+	console.log()
+	if (modalTimerId) {
+		clearInterval(modalTimerId);
+	}
+
+}
+
+
+function modalClose(modalSelector) {
+	const modal = document.querySelector(modalSelector);
+	modal.classList.remove('show');
+	modal.classList.add('hide');
+	document.body.style.overflow = '';
+}
+
+function modal(triggerSelector, modalSelector, modalTimerId) {
 
 	//Modal (POPUP)-----------------------------------
 
 	//получаем все кнопки по атрибуту data-modal
-	const btns = document.querySelectorAll('[data-modal]');
+	const btns = document.querySelectorAll(triggerSelector);
 	//получаем родительский элемент модального окна
-	const modal = document.querySelector('.modal');
+	const modal = document.querySelector(modalSelector);
 	//получаем кнопку закрыть в модальном окне
 	// const modalCloseBtn = document.querySelector('[data-close]');
 
-
-	function modalOpen() {
-		modal.classList.remove('hide');
-		modal.classList.add('show');
-		document.body.style.overflow = 'hidden';
-		clearInterval(modalTimer);
-	}
-
-
 	btns.forEach((btn) => {
-		btn.addEventListener('click', modalOpen);
+		btn.addEventListener('click', () => modalOpen(modalSelector, modalTimerId));
 	});
 
 
-	function modalClose() {
-		modal.classList.remove('show');
-		modal.classList.add('hide');
-		document.body.style.overflow = '';
-	}
+
 
 
 	// modalCloseBtn.addEventListener('click', modalClose);
@@ -36,7 +43,7 @@ function modal() {
 	//проверяем что кликнули по подложке модального окна, и вызываем функцию
 	modal.addEventListener('click', (event) => {
 		if (event.target == modal || event.target.getAttribute('data-close') == '') {
-			modalClose();
+			modalClose(modalSelector);
 		}
 	});
 
@@ -45,12 +52,11 @@ function modal() {
 	//и модальное окно открыто
 	document.addEventListener('keydown', (event) => {
 		if (event.keyCode == 27 && modal.classList.contains('show')) {
-			modalClose();
+			modalClose(modalSelector);
 		}
 	});
 
 
-	let modalTimer = setTimeout(modalOpen, 500000);
 
 
 	function showModalByScroll() {
@@ -60,7 +66,7 @@ function modal() {
 		//document.documentElement.scrollHeight- Вся высота документа
 		if (window.pageYOffset + document.documentElement.clientHeight >=
 			document.documentElement.scrollHeight) {
-			modalOpen();
+			modalOpen(modalSelector, modalTimerId);
 			//удаляем обработчик событий, что-бы окно больше не вызывалось
 			window.removeEventListener('scroll', showModalByScroll);
 		}
@@ -71,4 +77,6 @@ function modal() {
 
 }
 
-module.exports = modal;
+export default modal;
+export { modalOpen };
+export { modalClose };
